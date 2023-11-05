@@ -1,0 +1,106 @@
+﻿@{ 
+    ViewBag.Title = "Register";
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Register</title>
+</head>
+<body>
+    <div class="app">
+        <div class="panel panel-primary">
+            <div class="panel-heading">註冊頁面範例:{{ hello }}</div>
+
+            <div class="panel-body">
+                <div class="form-group">
+                    <label>帳號</label>
+                    <input type="text" class="form-control" v-model="UserID">
+                </div>
+                <div class="form-group">
+                    <label>密碼</label>
+                    <input type="password" class="form-control" v-model="UserPwd">
+                </div>
+                <div class="form-group">
+                    <label>姓名</label>
+                    <input type="text" class="form-control" v-model="UserName">
+                </div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="text" class="form-control" v-model="UserEmail">
+                </div>
+            </div>
+            <div class="panel-footer">
+                <button type="button" class="btn btn-primary" v-on:click="DoRegister()">註冊</button>
+            </div>
+        </div>
+        <!--使用 Bootstrap Modle 樣式，當執行有錯誤時，顯示錯誤訊息-->
+        <div class="modle fade" id="ErrorAlert" tabindex="-1" role="dialog">
+            <div class="modle-dialog modle-lg" role="document">
+                <div class="modle-content">
+                    <div class="modle-header">
+                        <button type="button" class="close" data-dismiss="modle" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modle-title">錯誤訊息</h4>
+                    </div>
+                    <div class="modle-body" id="ErrorMsg" style="overflow-x:auto;width:100%;">
+
+                    </div>
+                </div><!--/.modal-content-->
+            </div><!--/.modal-dialog-->
+        </div><!--/.modal-->
+    </div>
+
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+        var VuePage = {
+            data: function () {
+                return {
+                    hello: "Hello",
+                    UserID: '',
+                    UserPwd: '',
+                    UserName: '',
+                    UserEmail: ''
+                }
+            },
+            methods: {
+                //執行註冊按鈕
+                DoRegister: function () {
+                    var self = this;
+                    //組合表單資料
+                    var postData = {};
+                    postData['UserID'] = self.UserID;
+                    postData['UserPwd'] = self.UserPwd;
+                    postData['UserName'] = self.UserName;
+                    postData['UserEmail'] = self.UserEmail;
+
+                    //使用 jQuery Ajax 傳送至後端
+                    $.ajax({
+                        url: '@Url.Content("~/Member/DoRegister")',
+                        method: 'POST',
+                        dataType: 'json',
+                        data: {
+                                UserID: self.UserID,
+                                UserPwd: self.UserPwd,
+                                UserName: self.UserName,
+                                UserEmail: self.UserEmail
+                        },
+                        success: function (datas) {
+                            if (datas.ErrMsg) {
+                                alert(datas.ErrMsg);
+                                return;
+                            }
+                            alert(datas.ResulMsg);
+                        },
+                        error: function (err) {
+                            $('#ErrorMsg').html(err.responseText);
+                            $('#ErrorAlert').modal('toggle');
+                        },
+                    });
+                }
+            }
+        }
+        Vue.createApp(VuePage).mount('.app')
+    </script>
+</body>
+</html>
